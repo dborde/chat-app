@@ -30,6 +30,12 @@ const addUser = ({ id, username, room }) => {
   return { user }
 }
 
+const getRoomsList = () => {
+  // This function will get a list of all distinct rooms with at least one user
+  const rooms = users.map((user) => user.room);
+  return [...new Set(rooms)]
+};
+
 const removeUser = (id) => {
   const index = users.findIndex((user) => user.id === id)
 
@@ -50,5 +56,6 @@ module.exports = {
   addUser,
   removeUser,
   getUser,
-  getUsersInRoom
+  getUsersInRoom,
+  getRoomsList
 }

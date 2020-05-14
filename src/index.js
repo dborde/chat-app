@@ -8,7 +8,8 @@ const {
   addUser,
   removeUser,
   getUser,
-  getUsersInRoom
+  getUsersInRoom,
+  getRoomsList
 } = require('./utils/users')
 
 const app = express()
@@ -23,9 +24,13 @@ app.use(express.static(publicDirectoryPath))
 
 io.on('connection', (socket) => {
   console.log('New WebSocket connection')
-
-  socket.on('join', (options, callback) => {
-    const { error, user } = addUser({ id: socket.id, ...options })
+  socket.emit('roomsList', {
+    rooms: getRoomsList(),
+    user: ''
+  })
+  
+  socket.on('join', ({ username, room }, callback) => {
+    const { error, user } = addUser({ id: socket.id, username, room })
 
     if (error) {
       return callback(error)
@@ -39,6 +44,10 @@ io.on('connection', (socket) => {
     io.to(user.room).emit('roomData', {
       room: user.room,
       users: getUsersInRoom(user.room)
+    })
+    io.emit('roomsList', {
+      rooms: getRoomsList(),
+      user: user.username
     })
     
     callback()
@@ -74,6 +83,26 @@ io.on('connection', (socket) => {
       })
     }
   })
+
+  socket.on('switchRoom', (username, room) => {
+    socket.leave(socket.room)
+    const user = removeUser(socket.id)
+
+    if (user) {
+      io.to(room).emit('message',generateMessage('Admin',`${username} has left the room`))
+      io.to(room).emit('roomData', {
+        room,
+        users: getUsersInRoom(room)
+      })
+
+      io.emit('roomsList', {
+        rooms: getRoomsList(),
+        user: username
+      })
+
+    }
+  })
+
 })
 
 /**

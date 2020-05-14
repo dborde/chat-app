@@ -6,11 +6,13 @@ const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
+const $switchRoom = document.querySelector('#sidebar')
 
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
+const roomlistTemplate = document.querySelector('#roomlist-template').innerHTML
 
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
@@ -67,8 +69,17 @@ socket.on('roomData', ({room, users}) => {
     room,
     users
   })
-  document.querySelector('#sidebar').innerHTML = html
+  document.querySelector('#sidebar-users').innerHTML = html
 })
+
+socket.on('roomsList', ({rooms, user}) => {
+  const html = Mustache.render(roomlistTemplate, {
+    rooms,
+    user
+  });
+  document.querySelector('#sidebar-rooms').innerHTML = html
+});
+
   
 $messageForm.addEventListener('submit', (e) => {
   e.preventDefault()
@@ -114,3 +125,7 @@ socket.emit('join', { username, room }, (error) => {
     location.href = '/'
   }
 })
+
+$switchRoom.addEventListener('click', () => {
+  socket.emit('switchRoom', username, room );
+});
