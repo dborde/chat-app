@@ -43,7 +43,6 @@ const autoscroll = () => {
 }
 
 socket.on('message', (message) => {
-  console.log(message)
   const html = Mustache.render(messageTemplate, {
     username: message.username,
     message: message.text,
@@ -54,7 +53,6 @@ socket.on('message', (message) => {
 })
 
 socket.on('locationMessage', (message) => {
-  console.log(message)
   const html = Mustache.render(locationMessageTemplate, {
     username: message.username,
     url: message.url,
@@ -96,8 +94,6 @@ $messageForm.addEventListener('submit', (e) => {
      if (error) {
       return console.log(error)
     }
-    
-    console.log('Message delivered!')
   })
 })
 
@@ -113,8 +109,7 @@ $sendLocationButton.addEventListener('click', () => {
       lat: position.coords.latitude,
       long: position.coords.longitude
     }, () => {
-      $sendLocationButton.removeAttribute('disabled')
-      console.log('Location shared!')  
+      $sendLocationButton.removeAttribute('disabled') 
     })
   })
 })
@@ -126,6 +121,10 @@ socket.emit('join', { username, room }, (error) => {
   }
 })
 
-$switchRoom.addEventListener('click', () => {
-  socket.emit('switchRoom', username, room );
-});
+const switchRoom = (el) => {
+  const newroom = el.innerHTML
+  if (room !== newroom) {
+    socket.emit('switchRoom', username, newroom );
+    location.href = `?username=${username}&room=${newroom}`;
+  }
+}

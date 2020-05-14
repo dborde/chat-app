@@ -62,7 +62,7 @@
       <h3 class="list-title">Active Rooms</h3>
       <ul class="rooms">
         {{#rooms}}
-          <li class="switch-link"><a href="?username={{user}}&room={{.}}">{{.}}</a></li>
+          <li class="switch-link"><a href="#" onclick="switchRoom(this)">{{.}}</a></li>
         {{/rooms}}
       </ul>
     </script>

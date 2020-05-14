@@ -25,8 +25,7 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
   console.log('New WebSocket connection')
   socket.emit('roomsList', {
-    rooms: getRoomsList(),
-    user: ''
+    rooms: getRoomsList()
   })
   
   socket.on('join', ({ username, room }, callback) => {
@@ -46,8 +45,7 @@ io.on('connection', (socket) => {
       users: getUsersInRoom(user.room)
     })
     io.emit('roomsList', {
-      rooms: getRoomsList(),
-      user: user.username
+      rooms: getRoomsList()
     })
     
     callback()
@@ -81,6 +79,9 @@ io.on('connection', (socket) => {
         room: user.room,
         users: getUsersInRoom(user.room)
       })
+      io.emit('roomsList', {
+        rooms: getRoomsList()
+      })
     }
   })
 
@@ -89,17 +90,14 @@ io.on('connection', (socket) => {
     const user = removeUser(socket.id)
 
     if (user) {
-      io.to(room).emit('message',generateMessage('Admin',`${username} has left the room`))
-      io.to(room).emit('roomData', {
-        room,
-        users: getUsersInRoom(room)
+      io.to(user.room).emit('message',generateMessage('Admin',`${user.username} has left the room`))
+      io.to(user.room).emit('roomData', {
+        room: user.room,
+        users: getUsersInRoom(user.room)
       })
-
       io.emit('roomsList', {
-        rooms: getRoomsList(),
-        user: username
+        rooms: getRoomsList()
       })
-
     }
   })
 
